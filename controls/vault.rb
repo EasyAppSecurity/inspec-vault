@@ -75,7 +75,7 @@ control 'vault-1.1' do
   ref 'Vault Production Hardening', url: 'https://www.vaultproject.io/guides/operations/production.html'
 
   describe vault_version do
-    its('version') { should cmp >= 'v0.10.1' }
+    its('version') { should cmp >= 'v1.4.2' }
   end
 end
 
