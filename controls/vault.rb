@@ -61,6 +61,12 @@ vault_tlskey = attribute(
   default: '/opt/vaul/ssl/server_key.pem'
 )
 
+vault_config = attribute(
+  'vault_config',
+  description: 'Path to Vault configuration file',
+  default: '/etc/vault/config.hcl'
+)
+
 # check if vault exists
 only_if do
   command('vault').exist?
@@ -225,4 +231,20 @@ control 'vault-1.12' do
   describe command('ulimit -c') do
     its(:stdout) { should eq '0' }
   end
+end
+
+control 'vault-1.13' do
+  impact 1.0
+  title 'Ensure mlock is not disabled'
+  desc 'mlock prevents memory from being swapped to disk. Disabling mlock is not recommended in production, but is fine for local development and testing.'
+  
+  only_if do
+    file(vault_config.to_s).exists?
+  end
+  
+  mlock_disable_option = 'egrep -E \'^(disable_mlock)(\s+)=(\s+)(true)$\' ' + vault_config.to_s
+  describe command(mlock_disable_option) do
+    its(:stdout) { should be_empty }
+  end
+
 end
