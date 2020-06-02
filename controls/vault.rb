@@ -68,15 +68,17 @@ end
 
 control 'vault-1.1' do
   impact 1.0
-  title 'Keep Vault up to date'
-  desc 'Vault is actively developed, and updating frequently is important to incorporate security fixes
-  and any changes in default settings such as key lengths or cipher suites.'
+  title 'Verify Vault status attributes'
+  desc 'Verify Vault status attributes'
 
-  ref 'Vault Production Hardening', url: 'https://www.vaultproject.io/guides/operations/production.html'
-
-  describe vault_version do
-    its('version') { should cmp >= 'v1.4.2' }
+  describe json({ command: 'vault status -format json' }) do
+	  its('sealed') { should eq 'false' }
+	  its('version') { should cmp >= '1.4.2' }
+	  its('storage_type') { should_not eq 'inmem' }
+	  its('n') { should cmp >= '3' }
+	  its('t') { should cmp >= '2' }
   end
+
 end
 
 control 'vault-1.2' do
@@ -213,15 +215,4 @@ control 'vault-1.11' do
     it { should_not be_writable.by('other') }
     it { should_not be_executable }
   end
-end
-
-control 'vault-1.12' do
-  impact 1.0
-  title 'Verify Vault status'
-  desc 'Verify Vault status'
-
-  describe vault_command('status -format=json') do
-    its('sealed') { should cmp false }
-  end
-
 end
