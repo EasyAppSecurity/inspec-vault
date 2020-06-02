@@ -72,7 +72,7 @@ control 'vault-1.1' do
   desc 'Verify Vault status attributes'
 
   describe json({ command: 'vault status -format json' }) do
-	  its('sealed') { should eq 'false' }
+	  its('sealed') { should eq false }
 	  its('version') { should cmp >= '1.4.2' }
 	  its('storage_type') { should_not eq 'inmem' }
 	  its('n') { should cmp >= '3' }
@@ -214,5 +214,15 @@ control 'vault-1.11' do
     it { should_not be_readable.by('other') }
     it { should_not be_writable.by('other') }
     it { should_not be_executable }
+  end
+end
+
+control 'vault-1.12' do
+  impact 0.5
+  title 'Ensure Core Dumps are turned off'
+  desc 'A user or administrator that can force a core dump and has access to the resulting file can potentially access Vault encryption keys'
+
+  describe command('ulimit -c') do
+    its(:stdout) { should eq '0' }
   end
 end
