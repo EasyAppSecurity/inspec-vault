@@ -97,6 +97,7 @@ control 'vault-1.3' do
   desc 'Verify that vault configuration directory permissions are set to 640 or more restrictive'
 
   describe directory(vault_dir) do
+	it { should exist }
     its('owner') { should eq vault_user }
     it { should_not be_readable.by('others') }
     it { should_not be_writable.by('others') }
@@ -212,4 +213,15 @@ control 'vault-1.11' do
     it { should_not be_writable.by('other') }
     it { should_not be_executable }
   end
+end
+
+control 'vault-1.12' do
+  impact 1.0
+  title 'Verify Vault status'
+  desc 'Verify Vault status'
+
+  describe vault_command('status -format=json') do
+    its('sealed') { should cmp false }
+  end
+
 end
