@@ -336,3 +336,13 @@ control 'vault-1.16' do
   end
 
 end
+
+control 'vault-1.17' do
+  impact 0.5
+  title 'Ensure SSH / Remote Desktop are disabled'
+  desc 'When running a Vault as a single tenant application, users should never access the machine directly. Instead, they should access Vault through its API over the network. Use a centralized logging and telemetry solution for debugging'
+
+  describe command('ps aux | grep sshd') do
+    its(:stdout) { should be_empty }
+  end
+end
