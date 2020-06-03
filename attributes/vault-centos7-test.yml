@@ -5,3 +5,4 @@ vault_dir : /opt/vault
 vault_user : vault
 vault_tlscert : /opt/vault/ssl/server_cert.pem
 vault_tlskey : /opt/vaul/ssl/server_key.pem
+vault_config : /home/osboxes/config.hcl
