@@ -1,7 +1,6 @@
 # encoding: utf-8
 # frozen_string_literal: true
 
-# Copyright 2018, Martez Reed
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# author: Martez Reed
 
 title 'Vault Secure Configuration'
 
@@ -391,4 +389,18 @@ control 'vault-1.16' do
     its(:stdout) { should be_empty }
   end
   
+end
+
+control 'vault-1.17' do
+  impact 1.0
+  title 'Verify Auditing is enabled'
+  desc 'Enabling auditing provides a history of all operations performed by Vault and provides a forensics trail in the case of misuse or compromise. Audit logs securely hash any sensitive data, but access should still be restricted to prevent any unintended disclosures.'
+
+  describe command('vault audit list') do
+    its(:stdout) { should_not eq 'No audit devices are enabled.' }
+  end
+  
+  describe command('vault audit list -detailed') do
+    its(:stdout) { should_not match '(log_raw)(\s*)=(\s*)(true|1)' }
+  end
 end
