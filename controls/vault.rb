@@ -415,3 +415,41 @@ control 'vault-1.18' do
     its(:stdout) { should be_empty }
   end
 end
+
+control 'vault-1.19' do
+  impact 1.0
+  title 'Validate MSSQL Storage Backend settings'
+  desc 'Validate MSSQL Storage Backend settings'
+  
+  only_if { 'egrep -E \'(storage)(\s+)("mssql")\' ' + vault_config.to_s }
+  
+  sa_user_option = 'egrep -E  \'(username)(\s*)=(\s*)("sa")\' ' + vault_config.to_s
+  describe command(sa_user_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+end
+
+control 'vault-1.20' do
+  impact 1.0
+  title 'Validate PostgreSQL Storage Backend settings'
+  desc 'Validate PostgreSQL Storage Backend settings'
+  
+  only_if { 'egrep -E \'(storage)(\s+)("postgresql")\' ' + vault_config.to_s }
+  
+  postgresql_user_option = 'egrep -E \'postgres://postgres:\' ' + vault_config.to_s
+  describe command(postgresql_user_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+  verify_full_option = 'egrep -E \'sslmode=verify-full\' ' + vault_config.to_s
+  describe command(verify_full_option) do
+    its(:stdout) { should_not be_empty }
+  end
+  
+  ssl_mode_disable_option = 'egrep -E \'sslmode=disable\' ' + vault_config.to_s
+  describe command(ssl_mode_disable_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+end
