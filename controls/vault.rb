@@ -282,22 +282,22 @@ control 'vault-1.15' do
   end
   
   secret_key_option = 'egrep -E \'(secret_key)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
-  describe command(secret_key_option) do
+  describe command(secret_key_option), :sensitive do
     its(:stdout) { should be_empty }
   end
   
   client_secret_option = 'egrep -E \'(client_secret)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
-  describe command(client_secret_option) do
+  describe command(client_secret_option), :sensitive do
     its(:stdout) { should be_empty }
   end
   
   credentials_option = 'egrep -E \'(credentials)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
-  describe command(credentials_option) do
+  describe command(credentials_option), :sensitive do
     its(:stdout) { should be_empty }
   end
   
   pin_option = 'egrep -E \'(pin)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
-  describe command(pin_option) do
+  describe command(pin_option), :sensitive do
     its(:stdout) { should be_empty }
   end
 
