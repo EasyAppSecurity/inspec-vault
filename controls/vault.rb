@@ -404,3 +404,14 @@ control 'vault-1.17' do
     its(:stdout) { should_not match '(log_raw)(\s*)=(\s*)(true|1)' }
   end
 end
+
+control 'vault-1.18' do
+  impact 1.0
+  title 'Ensure In-Memory Storage Backend is not used'
+  desc 'Ensure In-Memory Storage Backend is not used'
+  
+  inmem_storage = 'egrep -E \'(storage)(\s+)("inmem")\' ' + vault_config.to_s
+  describe command(inmem_storage) do
+    its(:stdout) { should be_empty }
+  end
+end
