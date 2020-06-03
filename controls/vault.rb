@@ -281,24 +281,58 @@ control 'vault-1.15' do
     file(vault_config.to_s).exist?
   end
   
-  secret_key_option = 'egrep -E \'(secret_key)(\s*)=(\s*)(.+)' + vault_config.to_s
+  secret_key_option = 'egrep -E \'(secret_key)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
   describe command(secret_key_option) do
     its(:stdout) { should be_empty }
   end
   
-  client_secret_option = 'egrep -E \'(client_secret)(\s*)=(\s*)(.+)' + vault_config.to_s
+  client_secret_option = 'egrep -E \'(client_secret)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
   describe command(client_secret_option) do
     its(:stdout) { should be_empty }
   end
   
-  credentials_option = 'egrep -E \'(credentials)(\s*)=(\s*)(.+)' + vault_config.to_s
+  credentials_option = 'egrep -E \'(credentials)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
   describe command(credentials_option) do
     its(:stdout) { should be_empty }
   end
   
-  pin_option = 'egrep -E \'(pin)(\s*)=(\s*)(.+)' + vault_config.to_s
+  pin_option = 'egrep -E \'(pin)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
   describe command(pin_option) do
     its(:stdout) { should be_empty }
+  end
+
+end
+
+control 'vault-1.16' do
+  impact 1.0
+  title 'Validate Consul storage settings'
+  desc 'Validate Consul storage settings'
+  
+  only_if { 'egrep -E \'(storage)(\s+)("consul")\' ' + vault_config.to_s }
+  
+  http_scheme_option = 'egrep -E \'(scheme)(\s*)=(\s*)(http)\' ' + vault_config.to_s
+  describe command(http_scheme_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+  tls_ca_file_option = 'egrep -E \'tls_ca_file\' ' + vault_config.to_s
+  describe command(tls_ca_file_option) do
+    its(:stdout) { should_not be_empty }
+  end
+  
+  tls_key_file_option = 'egrep -E \'tls_key_file\' ' + vault_config.to_s
+  describe command(tls_key_file_option) do
+    its(:stdout) { should_not be_empty }
+  end
+  
+  tls_skip_verify_option = 'egrep -E \'(tls_skip_verify)(\s*)=(\s*)(true)\' ' + vault_config.to_s
+  describe command(tls_skip_verify_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+  tls_min_version_option = 'egrep -E \'(tls_min_version)(\s*)=(\s*)(tls12)\' ' + vault_config.to_s
+  describe command(tls_min_version_option) do
+    its(:stdout) { should_not be_empty }
   end
 
 end
