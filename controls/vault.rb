@@ -353,7 +353,7 @@ control 'vault-1.18' do
   desc 'Using additional mechanisms like SELinux and AppArmor can help provide additional layers of security when using Vault'
 
   describe.one do
-	describe command('sestatus | egrep -E \'(SELinux)(\s*)(status:)(\s+)enabled\'') do
+	describe command('sestatus | egrep -E \'(SELinux)(\s*)(status:)(\s+)(enabled)\'') do
 		its(:stdout) { should_not be_empty }
 	end
 	
@@ -362,4 +362,28 @@ control 'vault-1.18' do
 	end
   end
 
+end
+
+control 'vault-1.16' do
+  impact 1.0
+  title 'Validate Etcd storage settings'
+  desc 'Validate Etcd storage settings'
+  
+  only_if { 'egrep -E \'(storage)(\s+)("etcd")\' ' + vault_config.to_s }
+  
+  http_scheme_option = '(address)(\s*)=(\s*)("http:)' + vault_config.to_s
+  describe command(http_scheme_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+  tls_ca_file_option = 'egrep -E \'tls_ca_file\' ' + vault_config.to_s
+  describe command(tls_ca_file_option) do
+    its(:stdout) { should_not be_empty }
+  end
+  
+  tls_key_file_option = 'egrep -E \'tls_key_file\' ' + vault_config.to_s
+  describe command(tls_key_file_option) do
+    its(:stdout) { should_not be_empty }
+  end
+  
 end
