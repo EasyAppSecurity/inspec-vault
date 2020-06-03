@@ -346,3 +346,20 @@ control 'vault-1.17' do
     its(:stdout) { should be_empty }
   end
 end
+
+control 'vault-1.18' do
+  impact 0.5
+  title 'Check SELinux / AppArmor status'
+  desc 'Using additional mechanisms like SELinux and AppArmor can help provide additional layers of security when using Vault'
+
+  describe.one do
+	describe command('sestatus | egrep -E \'(SELinux)(\s*)(status:)(\s+)enabled\'') do
+		its(:stdout) { should_not be_empty }
+	end
+	
+	describe command('aa-status | egrep -E \'apparmor module is loaded\'') do
+		its(:stdout) { should_not be_empty }
+	end
+  end
+
+end
