@@ -271,3 +271,34 @@ control 'vault-1.14' do
   end
 
 end
+
+control 'vault-1.15' do
+  impact 1.0
+  title 'Check no Clear Text Credentials'
+  desc 'DO NOT store your cloud credentials or HSM pin in clear text within the seal stanza. If the Vault server is hosted on the same cloud platform as the KMS service, use the platform-specific identity solutions. If that is not applicable, set the credentials as environment variables (e.g. VAULT_HSM_PIN)'
+  
+  only_if do
+    file(vault_config.to_s).exist?
+  end
+  
+  secret_key_option = 'egrep -E \'(secret_key)(\s*)=(\s*)(.+)' + vault_config.to_s
+  describe command(secret_key_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+  client_secret_option = 'egrep -E \'(client_secret)(\s*)=(\s*)(.+)' + vault_config.to_s
+  describe command(client_secret_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+  credentials_option = 'egrep -E \'(credentials)(\s*)=(\s*)(.+)' + vault_config.to_s
+  describe command(credentials_option) do
+    its(:stdout) { should be_empty }
+  end
+  
+  pin_option = 'egrep -E \'(pin)(\s*)=(\s*)(.+)' + vault_config.to_s
+  describe command(pin_option) do
+    its(:stdout) { should be_empty }
+  end
+
+end
