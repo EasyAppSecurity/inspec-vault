@@ -239,7 +239,7 @@ control 'vault-1.13' do
   desc 'mlock prevents memory from being swapped to disk. Disabling mlock is not recommended in production, but is fine for local development and testing.'
   
   only_if do
-    file(vault_config.to_s).exists?
+    file(vault_config.to_s).exist?
   end
   
   mlock_disable_option = 'egrep -E \'^(disable_mlock)(\s+)=(\s+)(true)$\' ' + vault_config.to_s
