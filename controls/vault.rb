@@ -386,4 +386,9 @@ control 'vault-1.16' do
     its(:stdout) { should_not be_empty }
   end
   
+  password_option = 'egrep -E \'(password)(\s*)=(\s*)(.+)\' ' + vault_config.to_s
+  describe command(password_option), :sensitive do
+    its(:stdout) { should be_empty }
+  end
+  
 end
