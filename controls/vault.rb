@@ -235,6 +235,29 @@ end
 
 control 'vault-1.13' do
   impact 1.0
+  title 'Check Vault configuration file permissions'
+  desc 'Check Vault configuration file permissions'
+  
+  only_if do
+    file(vault_config.to_s).exist?
+  end
+  
+  describe file(vault_config) do
+    it { should exist }
+    it { should be_file }
+    it { should be_readable.by('owner') }
+    it { should_not be_writable.by('owner') }
+    it { should_not be_readable.by('group') }
+    it { should_not be_writable.by('group') }
+    it { should_not be_readable.by('other') }
+    it { should_not be_writable.by('other') }
+    it { should_not be_executable }
+  end
+
+end
+
+control 'vault-1.14' do
+  impact 1.0
   title 'Ensure mlock is not disabled'
   desc 'mlock prevents memory from being swapped to disk. Disabling mlock is not recommended in production, but is fine for local development and testing.'
   
