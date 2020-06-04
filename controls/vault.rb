@@ -520,3 +520,18 @@ control 'vault-1.20' do
   end
   
 end
+
+control 'vault-1.21' do
+  impact 0.5
+  title 'Ensure Vault Single Tenancy'
+  desc 'Vault should be the only main process running on a machine. This reduces the risk that another process running on the same machine is compromised and can interact with Vault. Similarly, running on bare metal should be preferred to a VM, and a VM preferred to a container.'
+  
+  processes = ['java', 'postgres', 'nginx', 'apache2', 'docker', 'mysql']
+
+  processes.each do |process|
+	describe command("ps aux | grep #{process}") do
+		its(:stdout) { should be_empty }
+	end
+  end
+  
+end
