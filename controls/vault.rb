@@ -456,7 +456,8 @@ control 'vault-1.17' do
     file(vault_config.to_s).exist?
   end
   
-  only_if { os_env('VAULT_ADDR').content.blank? }
+  vault_addr = os_env('VAULT_ADDR').content
+  only_if { !vault_addr.nil? && !vault_addr.empty? }
   
   describe command('vault audit list') do
     its(:stdout) { should_not include 'No audit devices are enabled' }
