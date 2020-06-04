@@ -460,7 +460,7 @@ control 'vault-1.17' do
   end
   
   describe command('vault audit list') do
-    its(:stdout) { should_not eq 'No audit devices are enabled.' }
+    its(:stdout) { should_not include 'No audit devices are enabled' }
   end
   
   describe command('vault audit list -detailed') do
