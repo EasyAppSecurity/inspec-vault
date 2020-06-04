@@ -65,15 +65,14 @@ vault_config = attribute(
   default: '/etc/vault/config.hcl'
 )
 
-# check if vault exists
-only_if do
-  command('vault').exist?
-end
-
 control 'vault-1.1' do
   impact 1.0
   title 'Verify Vault status attributes'
   desc 'Verify Vault status attributes'
+  
+  only_if do
+    command('vault').exist?
+  end
 
   describe json({ command: 'vault status -format json' }) do
 	  its('sealed') { should eq false }
@@ -89,6 +88,10 @@ control 'vault-1.2' do
   impact 1.0
   title 'Audit Vault executable'
   desc 'Audit all Vault executable activities'
+  
+  only_if do
+    file(vault_executable.to_s).exist?
+  end
 
   only_if { os.linux? }
   rule = '-w ' + vault_executable + ' -p rwxa -k vault'
@@ -101,6 +104,10 @@ control 'vault-1.3' do
   impact 1.0
   title 'Verify that vault configuration directory permissions are set to 640 or more restrictive'
   desc 'Verify that vault configuration directory permissions are set to 640 or more restrictive'
+  
+  only_if do
+    file(vault_dir.to_s).exist?
+  end
 
   describe directory(vault_dir) do
 	it { should exist }
@@ -115,6 +122,10 @@ control 'vault-1.4' do
   impact 1.0
   title 'Audit Vault files and directories'
   desc 'Audit the Vault files and directories'
+  
+  only_if do
+    file(vault_dir.to_s).exist?
+  end
 
   only_if { os.linux? }
   rule = '-w ' + vault_dir + ' -p rwxa -k vault'
@@ -127,6 +138,10 @@ control 'vault-1.5' do
   impact 1.0
   title 'Audit Vault service configuration'
   desc 'Audit Vault service configuration file'
+  
+  only_if do
+    file(vault_dir.to_s).exist?
+  end
 
   only_if { os.linux? }
   rule = '-w ' + vault_service_path + ' -p rwxa -k vault'
@@ -139,6 +154,10 @@ control 'vault-1.6' do
   impact 1.0
   title 'Ensure that the vault service is running'
   desc 'Ensure that the Vault systemd service is running and enabled'
+  
+  only_if do
+    file(vault_service.to_s).exist?
+  end
 
   describe service(vault_service) do
     it { should be_installed }
@@ -151,6 +170,10 @@ control 'vault-1.7' do
   impact 1.0
   title 'Ensure Vault is not running as root'
   desc 'Ensure that the Vault service is not being run as root'
+  
+  only_if do
+    command('vault').exist?
+  end
 
   describe processes('vault') do
     its('users') { should_not eq ['root'] }
@@ -171,6 +194,10 @@ control 'vault-1.9' do
   impact 1.0
   title 'Verify that vault.service file permissions are set to 644 or more restrictive'
   desc 'Verify that the \'vault.service\' file permissions are correctly set to \'644\' or more restrictive.'
+  
+  only_if do
+    file(vault_service_path.to_s).exist?
+  end
 
   describe file(vault_service_path) do
     it { should exist }
@@ -189,6 +216,10 @@ control 'vault-1.10' do
   impact 1.0
   title 'Verify that Vault certificate file permissions are set to 400'
   desc 'Verify that Vault certificate file permissions are set to 400'
+  
+  only_if do
+    file(vault_tlskey.to_s).exist?
+  end
 
   describe file(vault_tlskey) do
     it { should exist }
@@ -207,6 +238,10 @@ control 'vault-1.11' do
   impact 1.0
   title 'Verify that Vault certificate file permissions are set to 400'
   desc 'Verify that Vault certificate file permissions are set to 400'
+  
+  only_if do
+    file(vault_tlscert.to_s).exist?
+  end
 
   describe file(vault_tlscert) do
     it { should exist }
@@ -306,6 +341,10 @@ control 'vault-1.16' do
   title 'Validate Consul storage settings'
   desc 'Validate Consul storage settings'
   
+  only_if do
+    file(vault_config.to_s).exist?
+  end
+  
   only_if { 'egrep -E \'(storage)(\s+)("consul")\' ' + vault_config.to_s }
   
   http_scheme_option = 'egrep -E \'(scheme)(\s*)=(\s*)(http)\' ' + vault_config.to_s
@@ -340,6 +379,10 @@ control 'vault-1.17' do
   title 'Ensure SSH / Remote Desktop are disabled'
   desc 'When running a Vault as a single tenant application, users should never access the machine directly. Instead, they should access Vault through its API over the network. Use a centralized logging and telemetry solution for debugging'
 
+  only_if do
+    file(vault_config.to_s).exist?
+  end
+  
   describe command('ps aux | grep sshd') do
     its(:stdout) { should be_empty }
   end
@@ -349,6 +392,10 @@ control 'vault-1.18' do
   impact 0.5
   title 'Check SELinux / AppArmor status'
   desc 'Using additional mechanisms like SELinux and AppArmor can help provide additional layers of security when using Vault'
+
+  only_if do
+    file(vault_config.to_s).exist?
+  end
 
   describe.one do
 	describe command('sestatus | egrep -E \'(SELinux)(\s*)(status:)(\s+)(enabled)\'') do
@@ -366,6 +413,10 @@ control 'vault-1.16' do
   impact 1.0
   title 'Validate Etcd storage settings'
   desc 'Validate Etcd storage settings'
+  
+  only_if do
+    file(vault_config.to_s).exist?
+  end
   
   only_if { 'egrep -E \'(storage)(\s+)("etcd")\' ' + vault_config.to_s }
   
@@ -396,6 +447,10 @@ control 'vault-1.17' do
   title 'Verify Auditing is enabled'
   desc 'Enabling auditing provides a history of all operations performed by Vault and provides a forensics trail in the case of misuse or compromise. Audit logs securely hash any sensitive data, but access should still be restricted to prevent any unintended disclosures.'
 
+  only_if do
+    file(vault_config.to_s).exist?
+  end
+  
   describe command('vault audit list') do
     its(:stdout) { should_not eq 'No audit devices are enabled.' }
   end
@@ -410,6 +465,10 @@ control 'vault-1.18' do
   title 'Ensure In-Memory Storage Backend is not used'
   desc 'Ensure In-Memory Storage Backend is not used'
   
+  only_if do
+    file(vault_config.to_s).exist?
+  end
+  
   inmem_storage = 'egrep -E \'(storage)(\s+)("inmem")\' ' + vault_config.to_s
   describe command(inmem_storage) do
     its(:stdout) { should be_empty }
@@ -420,6 +479,10 @@ control 'vault-1.19' do
   impact 1.0
   title 'Validate MSSQL Storage Backend settings'
   desc 'Validate MSSQL Storage Backend settings'
+  
+  only_if do
+    file(vault_config.to_s).exist?
+  end
   
   only_if { 'egrep -E \'(storage)(\s+)("mssql")\' ' + vault_config.to_s }
   
@@ -434,6 +497,10 @@ control 'vault-1.20' do
   impact 1.0
   title 'Validate PostgreSQL Storage Backend settings'
   desc 'Validate PostgreSQL Storage Backend settings'
+  
+  only_if do
+    file(vault_config.to_s).exist?
+  end
   
   only_if { 'egrep -E \'(storage)(\s+)("postgresql")\' ' + vault_config.to_s }
   
