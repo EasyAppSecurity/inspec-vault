@@ -74,7 +74,8 @@ control 'vault-1.1' do
     command('vault').exist?
   end
   
-  only_if { os_env('VAULT_ADDR').content.blank? }
+  vault_addr = os_env('VAULT_ADDR').content
+  only_if { !vault_addr.nil? && !vault_addr.empty? }
 
   describe json({ command: 'vault status -format json' }) do
 	  its('sealed') { should eq false }
@@ -347,7 +348,8 @@ control 'vault-1.16' do
     file(vault_config.to_s).exist?
   end
   
-  only_if { 'egrep -E \'(storage)(\s+)("consul")\' ' + vault_config.to_s }
+  storage_search = command('egrep -E \'(storage)(\s+)("consul")\' ' + vault_config.to_s).stdout
+  only_if { !storage_search.empty? }
   
   http_scheme_option = 'egrep -E \'(scheme)(\s*)=(\s*)(http)\' ' + vault_config.to_s
   describe command(http_scheme_option) do
@@ -420,7 +422,8 @@ control 'vault-1.16' do
     file(vault_config.to_s).exist?
   end
   
-  only_if { 'egrep -E \'(storage)(\s+)("etcd")\' ' + vault_config.to_s }
+  storage_search = command('egrep -E \'(storage)(\s+)("etcd")\' ' + vault_config.to_s).stdout
+  only_if { !storage_search.empty? }
   
   http_scheme_option = '(address)(\s*)=(\s*)("http:)' + vault_config.to_s
   describe command(http_scheme_option) do
@@ -488,8 +491,9 @@ control 'vault-1.19' do
     file(vault_config.to_s).exist?
   end
   
-  only_if { 'egrep -E \'(storage)(\s+)("mssql")\' ' + vault_config.to_s }
-  
+  storage_search = command('egrep -E \'(storage)(\s+)("mssql")\' ' + vault_config.to_s).stdout
+  only_if { !storage_search.empty? }
+    
   sa_user_option = 'egrep -E  \'(username)(\s*)=(\s*)("sa")\' ' + vault_config.to_s
   describe command(sa_user_option) do
     its(:stdout) { should be_empty }
@@ -506,7 +510,8 @@ control 'vault-1.20' do
     file(vault_config.to_s).exist?
   end
   
-  only_if { 'egrep -E \'(storage)(\s+)("postgresql")\' ' + vault_config.to_s }
+  storage_search = command('egrep -E \'(storage)(\s+)("postgresql")\' ' + vault_config.to_s).stdout
+  only_if { !storage_search.empty? }
   
   postgresql_user_option = 'egrep -E \'postgres://postgres:\' ' + vault_config.to_s
   describe command(postgresql_user_option) do
