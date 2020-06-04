@@ -74,9 +74,7 @@ control 'vault-1.1' do
     command('vault').exist?
   end
   
-  only_if do
-    os_env('VAULT_ADDR').exist?
-  end
+  only_if { os_env('VAULT_ADDR').property.blank? }
 
   describe json({ command: 'vault status -format json' }) do
 	  its('sealed') { should eq false }
@@ -455,9 +453,7 @@ control 'vault-1.17' do
     file(vault_config.to_s).exist?
   end
   
-  only_if do
-    os_env('VAULT_ADDR').exist?
-  end
+  only_if { os_env('VAULT_ADDR').property.blank? }
   
   describe command('vault audit list') do
     its(:stdout) { should_not include 'No audit devices are enabled' }
