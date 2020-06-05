@@ -188,8 +188,8 @@ control 'vault-1.8' do
   title 'Ensure swap is disabled on the system'
   desc 'Ensure that swap is disabled on the system to prevent secrets from being written to disk'
 
-  describe command('swapon -s | grep -v Filename') do
-    its('exit_status') { should eq 1 }
+  describe command('blkid | grep swap') do
+    its(:stdout) { should_not be_empty }
   end
 end
 
